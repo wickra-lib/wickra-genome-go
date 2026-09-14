@@ -1,54 +1,32 @@
+<p align="center">
+  <a href="https://wickra.org"><img src="https://raw.githubusercontent.com/wickra-lib/.github/main/profile/wickra-banner.webp?v=514" alt="Wickra Genome — a vector database of the whole market" width="100%"></a>
+</p>
+
 # Wickra Genome — Go
 
-[![CI](https://github.com/wickra-lib/wickra-genome/actions/workflows/ci.yml/badge.svg)](https://github.com/wickra-lib/wickra-genome/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/wickra-lib/wickra-genome/branch/main/graph/badge.svg)](https://codecov.io/gh/wickra-lib/wickra-genome)
-[![Go module](https://raw.githubusercontent.com/wickra-lib/.github/main/profile/badges/wickra-genome/go.svg)](https://pkg.go.dev/github.com/wickra-lib/wickra-genome-go)
-[![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT_OR_Apache--2.0-blue)](https://github.com/wickra-lib/wickra-genome#license)
+Go bindings for the Wickra Genome vector engine over its C ABI hub (cgo). A
+`Genome` is built from a spec JSON and driven with command JSONs, so the same
+commands yield the byte-identical similarity, clustering and anomaly results as
+every other Wickra Genome binding.
 
-**Deterministic cross-sectional market-DNA analysis for Go, over the Wickra C ABI hub via cgo.**
+[![Built on Wickra](https://img.shields.io/badge/built%20on-wickra-3b82f6)](https://github.com/wickra-lib/wickra)
+[![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](https://github.com/wickra-lib/wickra-genome#license)
+[![cgo](https://img.shields.io/badge/bindings-cgo-3b82f6)](https://pkg.go.dev/cmd/cgo)
+[![Docs](https://img.shields.io/badge/docs-wickra.org-3b82f6)](https://wickra.org)
 
-Wickra Genome builds a normalized feature vector per symbol and answers similarity,
-clustering and anomaly queries across the cross-section — folded once in a Rust
-core and byte-identical across every language. This package is the Go binding; it
-consumes the C ABI hub through cgo and drives the engine over the same JSON
-protocol as every other binding.
+## Requirements
 
-## Install
-
-Use the published **`wickra-genome-go`** module, which bundles the prebuilt
-C ABI library for every platform, so `go get` + `go build` works with no extra
-steps (a C compiler is still required, as the binding uses cgo):
-
-```bash
-go get github.com/wickra-lib/wickra-genome-go
-```
-
-```go
-import wickra "github.com/wickra-lib/wickra-genome-go"
-```
-
-`wickra-genome-go` is generated from the [`bindings/go`](https://github.com/wickra-lib/wickra-genome/tree/main/bindings/go)
-directory by the release pipeline: it mirrors the Go sources, the vendored C ABI
-header (`include/wickra_genome.h`) and the prebuilt libraries under
-`lib/<goos>_<goarch>/`. On Linux/macOS the library path is baked in via rpath; on
-Windows the DLL must be discoverable at run time (next to the executable or on
-`PATH`).
-
-### Building from this repository (contributors)
-
-The `bindings/go` directory in the [wickra-genome](https://github.com/wickra-lib/wickra-genome)
-repository is the development source. To build it directly, compile the C ABI and
-stage the library into the per-platform directory cgo links against:
+The binding links the prebuilt C ABI library, staged per platform under
+`lib/<goos>_<goarch>/`, with the header vendored under `include/`. Build the C
+hub first and stage the library:
 
 ```bash
 cargo build -p wickra-genome-c --release
-mkdir -p lib/linux_amd64                              # match your GOOS_GOARCH
-cp target/release/libwickra_genome.so    lib/linux_amd64/    # Linux
-cp target/release/libwickra_genome.dylib lib/darwin_arm64/   # macOS (arm64)
-cp target/release/wickra_genome.dll      lib/windows_amd64/  # Windows
+# then copy target/release/libwickra_genome.{so,dylib} (or wickra_genome.dll)
+# into bindings/go/lib/<goos>_<goarch>/
 ```
 
-## Quick start
+## Usage
 
 ```go
 package main
@@ -78,39 +56,12 @@ func main() {
 }
 ```
 
-The engine lives only in the Rust core, so the same commands yield the
-byte-identical similarity, clustering and anomaly results here and in every other
-binding. Every handle owns native memory freed by `Close()`; a finalizer is wired
-as a backstop, but call `Close()` (e.g. with `defer`) to release it promptly.
+## Test
 
-## Documentation
-
-The full guides, quickstarts, and API reference live in the main repository and
-documentation site:
-
-- **Repository:** <https://github.com/wickra-lib/wickra-genome>
-- **Docs:** <https://wickra.org>
-- **Runnable examples:** [`examples/go/`](https://github.com/wickra-lib/wickra-genome/tree/main/examples/go)
-
-Wickra ships native bindings for Python, Node.js, WASM and Rust, plus a
-C ABI hub that any C-capable language (C, C++, C#, Go, Java, R) links against —
-all exposing the same core from the shared, `unsafe`-forbidden Rust core.
-
-## Security
-
-Found a security issue? **Please don't open a public issue.** Report it privately
-via the affected repository's *Security* tab (*"Report a vulnerability"*) or email
-**support@wickra.org** with a subject line starting `[wickra security]`. Full
-policy: <https://github.com/wickra-lib/wickra-genome/blob/main/SECURITY.md>.
-
-## Disclaimer
-
-Wickra Genome is analytics software, not a trading system. The values it computes
-are deterministic transforms of the input data — they are not financial advice and
-do not predict the market. Any use in a live trading context is at your own risk.
-The library is provided **as is**, without warranty of any kind.
+```bash
+go test ./...
+```
 
 ## License
 
-Licensed under either of [Apache-2.0](https://github.com/wickra-lib/wickra-genome/blob/main/LICENSE-APACHE)
-or [MIT](https://github.com/wickra-lib/wickra-genome/blob/main/LICENSE-MIT) at your option.
+Dual-licensed under either of Apache-2.0 or MIT at your option.
